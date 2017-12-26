@@ -1,25 +1,35 @@
 package com.mql.jsonx.core;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * the base object of the library, a Json Object is a java representation of the Javascript Object Notation (json)
+ * it abstracts the major functionality you expect of a basic json object
+ *
  * @author Mehdi Maick
  */
-public class JsonObject {
+public interface JsonObject extends Map<String, JsonValue>, JsonStructure {
 
-    private Map<String, JsonObject> object;
+    JsonArray getJsonArray(String key);
 
-    public String toString() {
-        return "{}";
-    }
+    JsonString getJsonString(String key);
 
-    public JsonObject() {
-        object = new HashMap<>();
-    }
+    JsonObject getJsonObject(String key);
 
-    public Set<String> keys() {
-        return object.keySet();
-    }
+    JsonNumber getJsonNumber(String key);
+
+    String getString(String key);
+
+    String getString(String key, String defaultValue);
+
+    boolean isNull(String key);
+
+    Boolean getBoolean(String key);
+
+    boolean putJson(String key, JsonValue value);
+
+    boolean putString(String key, String value);
 }
