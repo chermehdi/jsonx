@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  */
 public class JsonTest {
 
-    InputStream emptyStream = null, objectStream = null;
+    InputStream emptyStream = null, objectStream = null, objectWithInteger = null;
 
     @Before
     public void setUp() throws Exception {
@@ -29,6 +29,7 @@ public class JsonTest {
         root += "/src/test/resources";
         emptyStream = new FileInputStream(new File(root + "/empty.json"));
         objectStream = new FileInputStream(new File(root + "/full.json"));
+        objectWithInteger = new FileInputStream(new File(root + "/object.json"));
     }
 
     @Test
@@ -49,6 +50,18 @@ public class JsonTest {
                 "}")); // TODO the to String method does not guaranty key order
         Set<String> set = new HashSet<>(Arrays.asList("name", "age"));
         assertThat(object.keySet(), is(set));
+    }
+    
+    @Test
+    public void readObjectFromFileContainingIntegerValue() throws Exception {
+    	JsonObject object = Json.readFrom(objectWithInteger);
+    	assertNotNull(object);
+    	assertThat(object.toString(), is("{\n" +
+                "  \"name\" : \"hisham\",\n" +
+                "  \"age\" : 18\n" +
+                "}"));
+    	Set<String> set = new HashSet<>(Arrays.asList("name", "age"));
+    	assertThat(object.keySet(), is(set));
     }
 
 }
