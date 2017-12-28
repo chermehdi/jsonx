@@ -11,7 +11,7 @@ import java.util.Set;
  *
  * @author Mehdi Maick
  */
-public interface JsonObject extends Map<String, JsonValue>, JsonStructure {
+public interface JsonObject extends JsonStructure {
 
     JsonArray getJsonArray(String key);
 
@@ -32,4 +32,10 @@ public interface JsonObject extends Map<String, JsonValue>, JsonStructure {
     boolean putJson(String key, JsonValue value);
 
     boolean putString(String key, String value);
+
+    boolean putJsonPair(JsonPair pair);
+
+    Set<String> keySet();
+
+    String representation(int indent);
 }

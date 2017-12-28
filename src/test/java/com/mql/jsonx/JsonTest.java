@@ -36,7 +36,7 @@ public class JsonTest {
         JsonObject object = Json.readFrom(emptyStream);
         assertNotNull(object);
         assertThat(object.toString(), is("{}"));
-        assertThat(object.keys(), is(empty()));
+        assertThat(object.keySet(), is(empty()));
     }
 
     @Test
@@ -44,11 +44,11 @@ public class JsonTest {
         JsonObject object = Json.readFrom(objectStream);
         assertNotNull(object);
         assertThat(object.toString(), is("{\n" +
-                "  \"name\": \"hello\",\n" +
-                "  \"age\": 18\n" +
-                "}"));
+                "  \"name\" : \"hello\",\n" +
+                "  \"age\" : \"18\"\n" +
+                "}")); // TODO the to String method does not guaranty key order
         Set<String> set = new HashSet<>(Arrays.asList("name", "age"));
-        assertThat(object.keys(), is(set));
+        assertThat(object.keySet(), is(set));
     }
 
 }

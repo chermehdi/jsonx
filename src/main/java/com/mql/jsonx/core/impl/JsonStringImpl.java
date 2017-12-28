@@ -25,6 +25,6 @@ public class JsonStringImpl implements JsonString {
 
     @Override
     public String toString() {
-        return value;
+        return "\"" + value + "\"";
     }
 }

@@ -1,8 +1,12 @@
 package com.mql.jsonx.core;
 
+import com.mql.jsonx.core.impl.JsonStringImpl;
+
 import java.io.InputStream;
 
 /**
+ * read and tokenize json streams
+ *
  * @author Mehdi Maick
  */
 public class JsonTokenizer {
@@ -47,9 +51,30 @@ public class JsonTokenizer {
         }
     }
 
+    public int peakCleanToken() {
+        fillBuffer();
+        if (!eof) {
+            int c;
+            int cur = readPtr;
+            while (true) {
+                if (cur >= size) fillBuffer();
+                c = buff[cur];
+                if (c < 0) throw new RuntimeException("End Of File reached !");
+                if (isEmptyChar(c)) ++cur;
+                else return (char) c;
+            }
+        } else {
+            throw new RuntimeException("End Of File reached !");
+        }
+    }
+
+    /**
+     * returns true if the passed character is an empty character
+     *
+     * @param c the target variable
+     */
     private boolean isEmptyChar(int c) {
-        char current = (char) c;
-        return current == ' ' || current == '\r' || current == '\n';
+        return c == ' ' || c == '\r' || c == '\n' || c == '\t';
     }
 
     private void fillBuffer() {
@@ -65,14 +90,102 @@ public class JsonTokenizer {
         }
     }
 
+    // TODO
     public JsonObject readJsonObject() {
         return null;
     }
 
-    public static void main(String[] args) {
-        JsonTokenizer in = new JsonTokenizer(System.in);
-        for (int i = 0; i < 10; i++) {
-            System.out.println((char) in.readCleanToken());
+    public JsonPair readJsonPair() {
+        String key = readKey();
+        JsonValue value = readJsonValue();
+        return new JsonPair(key, value);
+    }
+
+    public JsonString readJsonString() {
+        int c;
+        StringBuffer sb = new StringBuffer();
+        boolean isOpenStr = true;
+        while (true) {
+            if (isOpenStr) {
+                c = read();
+                if (c == '"') {
+                    if (peakCleanToken() != ',' && peakCleanToken() != '}') formatException();
+                    return new JsonStringImpl(sb.toString());
+                } else {
+                    sb.append((char) c);
+                }
+            } else {
+                c = readCleanToken();
+                if (c == '"') {
+                    isOpenStr = true;
+                }
+            }
         }
+    }
+
+    // TODO: must read any JSON value
+    private JsonValue readJsonValue() {
+        int c = peakCleanToken();
+        if (c == ':') {
+            c = readCleanToken();
+            c = readCleanToken();
+        }
+        switch (c) {
+            case '"':
+                return readJsonString();
+            default:
+                return null;
+        }
+    }
+
+    private String readKey() {
+        int c;
+        int peek = peakCleanToken();
+        if (peek == ',') {
+            read(); // consume the comma
+        }
+        if (peek == '}') {
+            formatException();
+        }
+        StringBuffer sb = new StringBuffer();
+        boolean isOpenBrace = false, isOpenStr = false;
+        while (true) {
+            if (isOpenStr) {
+                c = read();
+                if (c == '"') {
+                    c = peakCleanToken();
+                    if (c != ':') formatException();
+                    return sb.toString();
+                }
+                sb.append((char) c);
+            } else {
+                c = read();
+                if (c == '"') isOpenStr = true;
+            }
+        }
+    }
+
+
+    private void formatException() {
+        throw new RuntimeException("The Object is not correctly formatted");
+    }
+
+    public String readKeyValuePair() {
+        StringBuffer sb = new StringBuffer();
+        int c;
+        boolean open = false;
+        c = readCleanToken();
+        while (true) {
+            if (c == '{' && open) throw new RuntimeException("not supported");
+            if (c == '{' && !open) {
+                open = true;
+                c = readCleanToken();
+                continue;
+            }
+            if (c == ',' || c == '}') break;
+            sb.append((char) c);
+            c = read();
+        }
+        return sb.toString();
     }
 }

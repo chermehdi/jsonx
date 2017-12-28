@@ -1,5 +1,7 @@
 package com.mql.jsonx.utils;
 
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,5 +27,9 @@ public class IOUtils {
             }
         }
         return sb.toString();
+    }
+
+    public static InputStream getInputStreamFromString(String s) {
+        return new ByteArrayInputStream(s.getBytes());
     }
 }
